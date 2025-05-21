@@ -62,16 +62,6 @@ export const subjects: Subject[] = [
     numLessons: 22,
   },
   {
-    id: "amharic",
-    name: "Amharic",
-    nameAm: "አማርኛ",
-    icon: "🔤",
-    color: "bg-red-50 text-red-700 border-red-200",
-    description: "Ethiopian national language including grammar, literature, and composition.",
-    numQuestions: 200,
-    numLessons: 20,
-  },
-  {
     id: "history",
     name: "History",
     nameAm: "ታሪክ",

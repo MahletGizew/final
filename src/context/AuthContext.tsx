@@ -3,8 +3,9 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { Teacher } from "@/components/Teachers/TeacherCard";
 
-export type UserRole = "student" | "admin";
+export type UserRole = "student" | "admin" | "teacher";
 
 interface AuthContextType {
   session: Session | null;
@@ -131,7 +132,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       signIn, 
       signUp, 
       signOut,
-      isAdmin 
+      isAdmin,
     }}>
       {children}
     </AuthContext.Provider>

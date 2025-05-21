@@ -162,7 +162,7 @@ export const generateUniqueQuestions = async (
       questions = questions.map((q: ExamQuestion, index: number) => ({
         ...q,
         id: q.id || `generated-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`
-      }));
+      }));     
 
       // Store the questions for history
       storeQuestions(questions);

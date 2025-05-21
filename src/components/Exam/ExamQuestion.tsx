@@ -62,70 +62,56 @@ const ExamQuestion: React.FC<ExamQuestionProps> = ({
   // State to track MathJax initialization
   const [isMathJaxInitialized, setIsMathJaxInitialized] = useState(!!window.MathJax?.startup?.promise);
 
-  // Load and configure MathJax
+
   useEffect(() => {
-    if (!window.MathJax) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-      script.async = true;
-      script.id = 'MathJax-script';
-      script.onload = () => {
-        // Wait for MathJax startup to complete
+    // Check if MathJax is already loaded or not
+    if (window.MathJax) {
+      if (window.MathJax.startup?.promise) {
         window.MathJax.startup.promise.then(() => {
           setIsMathJaxInitialized(true);
         }).catch((err: unknown) => {
           console.error('MathJax startup error:', err);
         });
-      };
-      script.onerror = () => {
-        console.error('Failed to load MathJax script');
-      };
-      document.head.appendChild(script);
-
-      window.MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']],
-          displayMath: [['$$', '$$'], ['\\[', '\\]']],
-          processEscapes: true,
-          processEnvironments: true,
-          packages: ['base', 'ams', 'color', 'mathtools', 'textmacros', 'newcommand'],
-          tags: 'ams',
-        },
-        options: {
-          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-          ignoreHtmlClass: 'mathjax-ignore',
-          processHtmlClass: 'mathjax-process',
-        },
-        chtml: {
-          scale: 1,
-        },
-        startup: {
-          ready: () => {
-            window.MathJax.startup.defaultReady();
-            // Initialize textmacros if available
-            if (window.MathJax.tex2chtmlPromise) {
-              window.MathJax.tex2chtmlPromise('\\textmacros{}', {}).catch((err: unknown) =>
-                console.error('MathJax tex2chtmlPromise error:', err)
-              );
-            }
-          },
-        },
-      };
-
-      return () => {
-        const mathJaxScript = document.getElementById('MathJax-script');
-        if (mathJaxScript) {
-          document.head.removeChild(mathJaxScript);
-        }
-      };
-    } else if (window.MathJax.startup?.promise) {
-      window.MathJax.startup.promise.then(() => {
-        setIsMathJaxInitialized(true);
-      }).catch((err: unknown) => {
-        console.error('MathJax startup error:', err);
-      });
+      }
+      return; // Skip loading if MathJax is already initialized
     }
-  }, []);
+
+    // Load MathJax script if not already loaded
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+    script.async = true;
+    script.id = 'MathJax-script';
+    
+    // On load callback
+    script.onload = () => {
+      window.MathJax.startup.promise
+        .then(() => {
+          setIsMathJaxInitialized(true);
+        })
+        .catch((err: unknown) => {
+          console.error('MathJax startup error:', err);
+        });
+    };
+
+    // On error callback
+    script.onerror = () => {
+      console.error('Failed to load MathJax script');
+    };
+
+    // Append the script to head
+    document.head.appendChild(script);
+
+    // Cleanup script on component unmount
+    return () => {
+      const mathJaxScript = document.getElementById('MathJax-script');
+      if (mathJaxScript) {
+        document.head.removeChild(mathJaxScript);
+      }
+    };
+  }, []); // Run effect once when component mounts
+
+
+
 
   // Typeset MathJax when content changes or MathJax initializes
   useEffect(() => {

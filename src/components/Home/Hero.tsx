@@ -114,42 +114,43 @@ const Hero = () => {
         </div>
 
         {/* Stats with improved styling */}
-        <div 
-          ref={statsRef}
-          className="mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4"
-        >
-          <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-shadow">
-            <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
-              <BookOpen className="size-5 text-ethiopia-green" />
-            </div>
-            <h3 className="text-2xl font-bold">12+</h3>
-            <p className="text-sm text-muted-foreground">School Subjects</p>
-          </div>
-          
-          <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-shadow">
-            <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
-              <Clock className="size-5 text-ethiopia-green" />
-            </div>
-            <h3 className="text-2xl font-bold">1000+</h3>
-            <p className="text-sm text-muted-foreground">Practice Questions</p>
-          </div>
-          
-          <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-shadow">
-            <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
-              <BarChart3 className="size-5 text-ethiopia-green" />
-            </div>
-            <h3 className="text-2xl font-bold">24/7</h3>
-            <p className="text-sm text-muted-foreground">Progress Tracking</p>
-          </div>
-          
-          <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-shadow">
-            <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
-              <Award className="size-5 text-ethiopia-green" />
-            </div>
-            <h3 className="text-2xl font-bold">500+</h3>
-            <p className="text-sm text-muted-foreground">Students Helped</p>
-          </div>
-        </div>
+ <div 
+  ref={statsRef}
+  className="mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4"
+>
+  <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-opacity duration-1000 ease-in-out animate-fade-up-1">
+    <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
+      <BookOpen className="size-5 text-ethiopia-green" />
+    </div>
+    <h3 className="text-2xl font-bold">12+</h3>
+    <p className="text-sm text-muted-foreground">School Subjects</p>
+  </div>
+
+  <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-opacity duration-1000 ease-in-out animate-fade-up-2">
+    <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
+      <Clock className="size-5 text-ethiopia-green" />
+    </div>
+    <h3 className="text-2xl font-bold">1000+</h3>
+    <p className="text-sm text-muted-foreground">Practice Questions</p>
+  </div>
+
+  <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-opacity duration-1000 ease-in-out animate-fade-up-3">
+    <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
+      <BarChart3 className="size-5 text-ethiopia-green" />
+    </div>
+    <h3 className="text-2xl font-bold">24/7</h3>
+    <p className="text-sm text-muted-foreground">Progress Tracking</p>
+  </div>
+
+  <div className="flex flex-col items-center gap-3 rounded-xl border bg-white/50 backdrop-blur-sm shadow-sm p-4 text-center opacity-0 hover:shadow-md transition-opacity duration-1000 ease-in-out animate-fade-up-4">
+    <div className="flex size-12 items-center justify-center rounded-full bg-ethiopia-green/10">
+      <Award className="size-5 text-ethiopia-green" />
+    </div>
+    <h3 className="text-2xl font-bold">500+</h3>
+    <p className="text-sm text-muted-foreground">Students Helped</p>
+  </div>
+</div>
+
       </div>
     </section>
   );

@@ -24,12 +24,12 @@ export const SubjectFileUpload: React.FC<SubjectFileUploadProps> = ({ subjectId 
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error(t('subjects.file_upload.no_file'));
+      toast.error(t('No file selected'));
       return;
     }
 
     if (!user) {
-      toast.error(t('auth.must_be_logged_in'));
+      toast.error(t('Not logged in'));
       return;
     }
 
@@ -74,7 +74,7 @@ export const SubjectFileUpload: React.FC<SubjectFileUploadProps> = ({ subjectId 
         throw resourceError;
       }
 
-      toast.success(t('subjects.file_upload.success'));
+      toast.success(t('Upload Successful'));
       setFile(null);
       
       // Clear file input
@@ -83,7 +83,7 @@ export const SubjectFileUpload: React.FC<SubjectFileUploadProps> = ({ subjectId 
 
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast.error(t('subjects.file_upload.error'));
+      toast.error(t('Upload Error'));
     }
   };
 
@@ -100,7 +100,7 @@ export const SubjectFileUpload: React.FC<SubjectFileUploadProps> = ({ subjectId 
         className="cursor-pointer inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md text-sm hover:bg-secondary/80"
       >
         <File className="size-4" />
-        {file ? file.name : t('subjects.file_upload.browse')}
+        {file ? file.name : t('Browse')}
       </label>
       <Button 
         variant="outline" 
@@ -110,7 +110,7 @@ export const SubjectFileUpload: React.FC<SubjectFileUploadProps> = ({ subjectId 
         className="ml-auto"
       >
         <Upload className="size-4 mr-2" />
-        {t('subjects.file_upload.upload')}
+        {t('Upload')}
       </Button>
     </div>
   );

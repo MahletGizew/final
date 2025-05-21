@@ -123,7 +123,7 @@ const SubjectResources = () => {
         throw resourceError;
       }
 
-      toast.success(t("subjects.file_upload.success"));
+      toast.success(t("File upload successful"));
       setFile(null);
       
       const input = document.getElementById('file-upload') as HTMLInputElement;
@@ -133,7 +133,7 @@ const SubjectResources = () => {
 
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast.error(t("subjects.file_upload.error"));
+      toast.error(t("Error uploading file"));
     } finally {
       setUploading(false);
     }
@@ -150,7 +150,7 @@ const SubjectResources = () => {
   
   const handleDeleteResource = async (resourceId: string, fileName: string | null) => {
     if (!user) {
-      toast.error(t("auth.must_be_logged_in"));
+      toast.error(t("User not logged in"));
       return;
     }
 
@@ -170,11 +170,11 @@ const SubjectResources = () => {
 
       if (dbError) throw dbError;
       
-      toast.success(t("subjects.file_delete_success"));
+      toast.success(t("Deletion successful"));
       fetchResources();
     } catch (error) {
       console.error('Error deleting resource:', error);
-      toast.error(t("subjects.file_delete_error"));
+      toast.error(t("Error deleting resource"));
     }
   };
 
@@ -211,11 +211,11 @@ const SubjectResources = () => {
               </div>
               
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
-                {language === "en" ? subject.name : subject.nameAm || subject.name} {t("subjects.resources")}
+                {language === "en" ? subject.name : subject.nameAm || subject.name} {t("Resources")}
               </h1>
               
               <p className="max-w-[700px] text-muted-foreground md:text-lg">
-                {t("subjects.resources_subtitle")}
+                {t("Discover, Download, and Upload Study Materials for Every Subject ")}
               </p>
 
               <Button 
@@ -223,7 +223,7 @@ const SubjectResources = () => {
                 className="mt-4" 
                 onClick={() => navigate("/subjects")}
               >
-                {t("common.back_to_subjects")}
+                {t("Back to subjects")}
               </Button>
             </div>
           </div>
@@ -232,15 +232,15 @@ const SubjectResources = () => {
         <div className="container px-4 md:px-6 py-8">
           <Tabs defaultValue="resources" className="space-y-6">
             <TabsList>
-              <TabsTrigger value="resources">{t("subjects.resources")}</TabsTrigger>
-              <TabsTrigger value="tests">{t("subjects.tests.title")}</TabsTrigger>
+              <TabsTrigger value="resources">{t("Access resources")}</TabsTrigger>
+              <TabsTrigger value="tests">{t("Upload Tests")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="resources">
               <section className="space-y-8">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t("subjects.file_upload.title")}</CardTitle>
+                    <CardTitle>{t("Upload file")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -255,7 +255,7 @@ const SubjectResources = () => {
                         className="cursor-pointer inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/80"
                       >
                         <File className="size-4" />
-                        {file ? file.name : t("subjects.file_upload.browse")}
+                        {file ? file.name : t("Browse")}
                       </label>
                       <Button 
                         onClick={handleUpload} 
@@ -263,21 +263,21 @@ const SubjectResources = () => {
                         className="inline-flex items-center gap-2"
                       >
                         <Upload className="size-4" />
-                        {uploading ? t("subjects.file_upload.uploading") : t("subjects.file_upload.upload")}
+                        {uploading ? t("Uploading") : t("Upload")}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
 
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">{t("subjects.resources_list")}</h2>
+                  <h2 className="text-2xl font-bold mb-6">{t("Resources List")}</h2>
                   {loading ? (
                     <div className="flex justify-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                     </div>
                   ) : resources.length === 0 ? (
                     <Card className="p-8 text-center text-muted-foreground">
-                      <p>{t("subjects.no_resources")}</p>
+                      <p>{t("No Resources Available")}</p>
                     </Card>
                   ) : (
                     <div className="grid gap-4">
@@ -301,7 +301,7 @@ const SubjectResources = () => {
                                 onClick={() => handleDownload(resource.file_url, resource.title)}
                               >
                                 <FileDown className="size-4 mr-2" />
-                                {t("subjects.download")}
+                                {t("Download")}
                               </Button>
                               
                               {isOwner(resource.user_id) && (

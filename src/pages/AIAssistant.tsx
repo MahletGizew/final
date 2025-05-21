@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from "react";
+// pages/AIAssistant.tsx
+import React, { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 
 interface Message {
   id: string;
@@ -33,93 +35,58 @@ const AIAssistant = () => {
     },
   ]);
   const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Scroll to bottom of messages when new messages are added
   useEffect(() => {
-    if (messages.length > 0) {
-      const messageContainer = document.getElementById("message-container");
-      if (messageContainer) {
-        messageContainer.scrollTop = messageContainer.scrollHeight;
-      }
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Test Groq API connection on component mount
+  // Re-typeset MathJax whenever new messages appear
   useEffect(() => {
-    if (!initialized) {
-      testGroqConnection();
-      setInitialized(true);
+    if (typeof window !== "undefined" && (window as any).MathJax) {
+      (window as any).MathJax.typesetPromise();
     }
-  }, [initialized]);
-
-  const testGroqConnection = async () => {
-    try {
-      const testResponse = await supabase.functions.invoke("ai-generate-questions", {
-        body: {
-          mode: "chat",
-          query: "Quick test of system functionality",
-          testCall: true
-        }
-      });
-      
-      if (testResponse.error) {
-        console.error("Test connection error:", testResponse.error);
-        toast({
-          variant: "destructive",
-          title: "AI System Connection Issue",
-          description: "There was a problem connecting to the AI service. Some features may be limited."
-        });
-      } else {
-        console.log("Groq API connection successful");
-      }
-    } catch (error) {
-      console.error("Error testing Groq connection:", error);
-    }
-  };
+  }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
-    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       content: query,
       sender: "user",
       timestamp: new Date(),
     };
-    
     setMessages((prev) => [...prev, userMessage]);
     setQuery("");
     setLoading(true);
 
-    // Add temporary loading message
     const loadingMsgId = (Date.now() + 1).toString();
     setMessages((prev) => [
-      ...prev, 
+      ...prev,
       {
         id: loadingMsgId,
         content: "Processing your question with Groq...",
         sender: "ai",
         timestamp: new Date(),
-        status: "loading"
-      }
+        status: "loading",
+      },
     ]);
 
     try {
-      // Call the Groq-powered edge function
       const response = await supabase.functions.invoke("ai-generate-questions", {
         body: {
           mode: "chat",
           query: userMessage.content,
-          context: messages.slice(-5).map(msg => `${msg.sender}: ${msg.content}`).join("\n"),
-          userId: user?.id || null
-        }
+          context: messages.slice(-5).map((msg) => `${msg.sender}: ${msg.content}`).join("\n"),
+          userId: user?.id || null,
+        },
       });
 
-      // Remove loading message
-      setMessages((prev) => prev.filter(msg => msg.id !== loadingMsgId));
+      setMessages((prev) => prev.filter((msg) => msg.id !== loadingMsgId));
 
       if (response.error) {
         throw new Error(response.error.message);
@@ -131,33 +98,29 @@ const AIAssistant = () => {
           content: response.data.response,
           sender: "ai",
           timestamp: new Date(),
-          status: "success"
+          status: "success",
         };
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        throw new Error("Failed to generate a response");
+        throw new Error("No response returned from AI.");
       }
     } catch (error) {
-      // Remove loading message
-      setMessages((prev) => prev.filter(msg => msg.id !== loadingMsgId));
-      
-      console.error("Error in AI response:", error);
-      const errorMsg = error instanceof Error ? error.message : "Unknown error occurred";
-      
+      setMessages((prev) => prev.filter((msg) => msg.id !== loadingMsgId));
+
       toast({
         variant: "destructive",
         title: "AI Response Error",
-        description: "Could not generate a response. Please try again later."
+        description: "Could not generate a response. Please try again later.",
       });
 
       const aiErrorMessage: Message = {
-        id: (Date.now() + 2).toString(),
-        content: `I'm sorry, I encountered an error while processing your request. ${errorMsg}`,
+        id: (Date.now() + 3).toString(),
+        content: `I'm sorry, I encountered an error: ${error instanceof Error ? error.message : "Unknown error."}`,
         sender: "ai",
         timestamp: new Date(),
-        status: "error"
+        status: "error",
       };
-      
+
       setMessages((prev) => [...prev, aiErrorMessage]);
     } finally {
       setLoading(false);
@@ -181,12 +144,13 @@ const AIAssistant = () => {
 
           <Separator className="my-6" />
 
-          <div 
+          <div
+            ref={messageContainerRef}
             id="message-container"
             className="bg-card rounded-lg border shadow-sm p-4 mb-6 min-h-[50vh] max-h-[60vh] overflow-y-auto"
           >
             {messages.map((message) => (
-              <div 
+              <div
                 key={message.id}
                 className={`mb-4 ${message.sender === "user" ? "ml-auto max-w-[80%]" : "mr-auto max-w-[80%]"}`}
               >
@@ -200,14 +164,18 @@ const AIAssistant = () => {
                       <Sparkles className="h-4 w-4 text-ethiopia-green" />
                     )}
                   </div>
-                  <div className={`rounded-lg px-4 py-3 text-sm ${
-                    message.sender === "user" 
-                      ? "bg-primary text-primary-foreground" 
-                      : message.status === "error"
+                  <div
+                    className={`rounded-lg px-4 py-3 text-sm ${
+                      message.sender === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : message.status === "error"
                         ? "bg-muted border border-destructive/20"
                         : "bg-muted"
-                  }`}>
-                    {message.content}
+                    }`}
+                  >
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                      {message.content}
+                    </ReactMarkdown>
                   </div>
                 </div>
               </div>

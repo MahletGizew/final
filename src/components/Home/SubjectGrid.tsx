@@ -57,7 +57,7 @@ const SubjectGrid = () => {
           {subjects.slice(0, 8).map((subject) => (
             <div
               key={subject.id}
-              className="cursor-pointer opacity-0 flex flex-col rounded-xl border transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-1 overflow-hidden"
+              className="cursor-pointer opacity-100 flex flex-col rounded-xl border transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-1 overflow-hidden"
               onClick={() => handleSubjectClick(subject.id)}
             >
               <div className={`${subject.color} p-4`}>

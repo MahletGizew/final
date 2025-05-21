@@ -1,16 +1,14 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 
-// Interface for the raw options JSON structure
 interface Option {
   option: string;
   choice: string;
 }
 
-// Updated ExamQuestion interface
 export interface ExamQuestion {
   id: string;
-  question_number?: number | string; // Added from table
+  question_number?: number | string;
   question_text: string;
   option_a: string;
   option_b: string;
@@ -22,46 +20,37 @@ export interface ExamQuestion {
   explanation?: string;
 }
 
-// Local storage keys (distinct from original code)
 const STORED_QUESTIONS_KEY = 'ethio_questionbank_questions';
 const QUESTION_USAGE_KEY = 'ethio_questionbank_usage';
-const LAST_SYNC_KEY = 'ethio_questionbank_last_sync';
 
 /**
- * Checks if the device is online
+ * Check if online
  */
 export const isOnline = (): boolean => {
   return navigator.onLine;
 };
 
 /**
- * Get stored questions from local storage (only for history)
+ * Local storage handlers
  */
 export const getStoredQuestions = (): ExamQuestion[] => {
   try {
-    const storedQuestionsJson = localStorage.getItem(STORED_QUESTIONS_KEY);
-    if (!storedQuestionsJson) return [];
-    return JSON.parse(storedQuestionsJson);
-  } catch (error) {
-    console.error('Error retrieving stored questions:', error);
+    const stored = localStorage.getItem(STORED_QUESTIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (err) {
+    console.error('Failed to retrieve stored questions', err);
     return [];
   }
 };
 
-/**
- * Save questions to local storage for history
- */
 export const storeQuestions = (questions: ExamQuestion[]): void => {
   try {
     localStorage.setItem(STORED_QUESTIONS_KEY, JSON.stringify(questions));
-  } catch (error) {
-    console.error('Error storing questions:', error);
+  } catch (err) {
+    console.error('Failed to store questions', err);
   }
 };
 
-/**
- * Track which questions have been used in which exam sessions
- */
 export const trackQuestionUsage = (examId: string, questionIds: string[]): void => {
   try {
     const usageJson = localStorage.getItem(QUESTION_USAGE_KEY);
@@ -74,81 +63,66 @@ export const trackQuestionUsage = (examId: string, questionIds: string[]): void 
 };
 
 /**
- * Fetches questions from the Supabase questions table by subject and year
+ * Fetches questions from the questionbank table based on subject/year/count
  */
 export const fetchQuestionsBySubjectAndYear = async (
-  supabase: SupabaseClient,
   count: number,
   subject: string,
-  year: number | string,
-  examId: string = Date.now().toString()
+  year: number | string
 ): Promise<{ questions: ExamQuestion[]; source: 'questionbank'; warning?: string }> => {
   if (!isOnline()) {
     throw new Error('An internet connection is required to fetch questions. Please connect and try again.');
   }
 
-  console.log(`Fetching ${count} questions for subject: ${subject}, year: ${year}`);
-
-  // Maximum attempts for retrying on transient errors
   const maxAttempts = 3;
-  const baseDelay = 2000; // 2 second initial delay
+  const baseDelay = 2000;
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      console.log(`Fetch attempt ${attempt}/${maxAttempts}`);
-
-      // Inform user of retry attempts
       if (attempt > 1) {
         toast.info(`Retrying question fetch (attempt ${attempt}/${maxAttempts})...`);
       }
 
-      // Build Supabase query
-      let query = supabase
+      const { data, error } = await supabase
         .from('questions')
         .select('id, question_number, question_text, options, correct_answer, subject, year, explanation')
         .eq('subject', subject)
-        .eq('year', year)
-        .limit(count);
-
-      const { data, error } = await query;
+        .eq('year', typeof year === 'string' ? parseInt(year) : year)
+        .order('question_number', { ascending: true })
+        .limit(count * 2); 
 
       if (error) {
-        console.error(`Error from Supabase (attempt ${attempt}):`, error);
-        lastError = new Error(`Database error: ${error.message}`);
-        const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 15000); // Exponential backoff, max 15 seconds
-        await new Promise(resolve => setTimeout(resolve, delay));
+        console.error('Supabase error:', error);
+        lastError = new Error(error.message);
+        await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
         continue;
       }
 
       if (!data || data.length === 0) {
-        console.error(`No questions found (attempt ${attempt})`);
-        lastError = new Error('No questions found for the specified subject and year');
-        const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 15000);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        lastError = new Error('No questions found for the specified subject and year.');
+        await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
         continue;
       }
 
-      // Parse options and transform to ExamQuestion format
       const questions: ExamQuestion[] = data.map((q, index) => {
         let options: Option[] = [];
         try {
           options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
         } catch (parseError) {
-          console.warn(`Failed to parse options for question ${q.id}:`, parseError);
+          console.warn(`Invalid options JSON for question ${q.id}:`, parseError);
           options = [];
         }
 
-        // Map options to option_a, option_b, option_c, option_d
         const optionMap: { [key: string]: string } = {};
-        options.forEach((opt: Option) => {
+        options.forEach(opt => {
           if (opt.option && opt.choice) {
             optionMap[opt.option.toUpperCase()] = opt.choice;
           }
         });
 
         return {
-          id: q.id || `db-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`,
+          id: q.id,
           question_number: q.question_number,
           question_text: q.question_text || '',
           option_a: optionMap['A'] || '',
@@ -162,81 +136,65 @@ export const fetchQuestionsBySubjectAndYear = async (
         };
       });
 
-      // Filter out invalid questions (missing required fields)
-      const validQuestions = questions.filter(q => 
-        q.question_text && 
-        q.option_a && 
-        q.option_b && 
-        q.option_c && 
-        q.option_d && 
-        q.correct_answer
+      // Filter invalid questions
+      const valid = questions.filter(q =>
+        q.question_text && q.option_a && q.option_b && q.option_c && q.option_d && q.correct_answer
       );
 
-      if (validQuestions.length === 0) {
-        console.error(`No valid questions after parsing (attempt ${attempt})`);
-        lastError = new Error('No valid questions found after parsing options');
-        const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 15000);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
-      }
-
-      // Basic deduplication by question_text and options
+      // Deduplicate
       const unique = new Map<string, ExamQuestion>();
-      for (const q of validQuestions) {
-        const key =
-          (q.question_text?.trim().toLowerCase() || '') +
-          '|' +
-          (q.option_a?.trim().toLowerCase() || '') +
-          '|' +
-          (q.option_b?.trim().toLowerCase() || '') +
-          '|' +
-          (q.option_c?.trim().toLowerCase() || '') +
-          '|' +
-          (q.option_d?.trim().toLowerCase() || '');
+      valid.forEach(q => {
+        const key = `${q.question_text?.trim().toLowerCase()}|${q.option_a}|${q.option_b}|${q.option_c}|${q.option_d}`;
         if (!unique.has(key)) {
           unique.set(key, q);
         }
-      }
-      let finalQuestions = Array.from(unique.values());
+      });
 
-      // Limit to requested count
-      finalQuestions = finalQuestions.slice(0, count);
+      let final = Array.from(unique.values()).slice(0, count);
 
-      // Store questions and track usage
-      storeQuestions(finalQuestions);
-      trackQuestionUsage(examId, finalQuestions.map(q => q.id));
+      // Sort by question number (optional enhancement)
+      final.sort((a, b) => {
+        const numA = typeof a.question_number === 'string' ? parseInt(a.question_number) : a.question_number || 0;
+        const numB = typeof b.question_number === 'string' ? parseInt(b.question_number) : b.question_number || 0;
+        return numA - numB;
+      });
 
-      console.log(`Successfully fetched ${finalQuestions.length} unique questions after ${attempt} attempts`);
+      storeQuestions(final);
+      trackQuestionUsage(subject + '-' + year, final.map(q => q.id));
 
       return {
-        questions: finalQuestions,
+        questions: final,
         source: 'questionbank',
         warning: data.length < count ? 'Not enough unique questions available' : undefined
       };
+
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error(`Attempt ${attempt}: Question fetch failed:`, errorMessage);
-      lastError = error instanceof Error ? error : new Error(errorMessage);
-
-      // Don't retry network errors
-      if (errorMessage.includes('internet') || errorMessage.includes('network') || errorMessage.includes('connection')) {
-        throw lastError;
-      }
-
-      // Wait before retrying
-      const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 15000);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      lastError = error instanceof Error ? error : new Error('Unexpected error occurred');
+      await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
     }
   }
 
-  // All attempts failed
-  console.error(`All ${maxAttempts} attempts to fetch questions failed`);
-  const finalError = lastError?.message || 'Failed to fetch questions after multiple attempts';
-
-  // Show user-friendly error
-  toast.error('Failed to fetch questions. Please try again in a moment.', {
-    description: 'Our database service is experiencing temporary issues. We’re working on it!'
+  toast.error('Failed to fetch questions. Please try again later.', {
+    description: 'Our database service may be temporarily unavailable.'
   });
 
-  throw new Error(finalError);
+  throw lastError!;
+};
+
+/**
+ * Returns all distinct years available for a given subject
+ */
+export const fetchDistinctYears = async (
+  subject: string
+): Promise<number[]> => {
+  const { data, error } = await supabase
+    .from('questions')
+    .select('year')
+    .eq('subject', subject);
+
+  if (error) throw new Error(error.message);
+
+  return Array.from(
+    new Set((data || []).map(item => item.year).filter((y): y is number => typeof y === 'number'))
+  ).sort((a, b) => b - a);
 };

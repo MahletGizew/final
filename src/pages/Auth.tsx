@@ -135,7 +135,7 @@ const Auth = () => {
                     className="w-full" 
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? t("common.loading") : t("Sign in")}
+                    {isSubmitting ? t("Loading") : t("Sign in")}
                   </Button>
                 </CardFooter>
               </form>

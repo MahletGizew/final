@@ -19,7 +19,9 @@ import {
   BarChart3, 
   Bot, 
   Shield,
-  School
+  School,
+  VaultIcon,
+  PiggyBank
 } from "lucide-react";
 
 const Navigation = () => {
@@ -83,6 +85,10 @@ const Navigation = () => {
         
         <NavItem to="/ai-assistant" icon={<Bot className="h-4 w-4" />}>
           {t("AI Assistant")}
+        </NavItem>
+
+         <NavItem to="/questionBank" icon={<PiggyBank className="h-4 w-4" />}>
+          {t("Question Bank")}
         </NavItem>
         
         {isAdmin && isAdmin() && (
