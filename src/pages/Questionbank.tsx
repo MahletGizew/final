@@ -39,7 +39,7 @@ const QuestionBankExam = () => {
   const fetchYears = async () => {
     if (selectedSubject) {
       try {
-        const years = await fetchDistinctYears( selectedSubject);
+        const years = await fetchDistinctYears(selectedSubject);
         setAvailableYears(years.map(String));
       } catch (error) {
         console.error('Error fetching years:', error);
@@ -79,7 +79,7 @@ const ProgressIndicator = ({ current, total }: { current: number; total: number 
     toast({ title: "Fetching Questions..." });
 
     try {
-     const result = await fetchQuestionsBySubjectAndYear(questionCount, selectedSubject, selectedYear);
+     const result = await fetchQuestionsBySubjectAndYear(questionCount, selectedSubject, Number(selectedYear));
 
 if (!result || result.questions.length === 0) {
   throw new Error("No questions found for this subject and year.");
@@ -136,29 +136,29 @@ setExamCompleted(false);
 
 
 
-const Timer = ({ duration }: { duration: number }) => {
-  const [timeLeft, setTimeLeft] = useState(duration);
+// const Timer = ({ duration }: { duration: number }) => {
+//   const [timeLeft, setTimeLeft] = useState(duration);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+//     }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+//     return () => clearInterval(interval);
+//   }, []);
 
-  return (
-    <div>
-      <h3>Time Remaining: {timeLeft}s</h3>
-      <ReactTimeoutButton
-        timeout={timeLeft * 1000}
-        onTimeout={() => alert('Time is up!')}
-      >
-        Finish Exam
-      </ReactTimeoutButton>
-    </div>
-  );
-};
+//   return (
+//     <div>
+//       <h3>Time Remaining: {timeLeft}s</h3>
+//       <ReactTimeoutButton
+//         timeout={timeLeft * 1000}
+//         onTimeout={() => alert('Time is up!')}
+//       >
+//         Finish Exam
+//       </ReactTimeoutButton>
+//     </div>
+//   );
+// };
 
 
   const handleReset = () => {
@@ -252,7 +252,7 @@ const Timer = ({ duration }: { duration: number }) => {
             
           <section className="py-10">
             <ProgressIndicator current={currentQuestionIndex + 1} total={questions.length} />
-            <Timer duration={1800} /> {/* 30 minutes */}
+            {/* <Timer duration={1800} /> 30 minutes */}
 
 
             <div className="container px-4 md:px-6 max-w-3xl mx-auto">

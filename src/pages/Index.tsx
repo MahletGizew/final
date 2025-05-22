@@ -230,8 +230,8 @@ const Index = () => {
         </section>
       </main>
       
-      <AIAssistantButton onClick={() => setAiDialogOpen(true)} />
-      <AIAssistantDialog open={aiDialogOpen} onOpenChange={setAiDialogOpen} />
+      {/* <AIAssistantButton onClick={() => setAiDialogOpen(true)} />
+      <AIAssistantDialog open={aiDialogOpen} onOpenChange={setAiDialogOpen} /> */}
       
       <Footer />
     </div>

@@ -12,7 +12,8 @@ import {
   BarChart3, 
   Bot, 
   Shield,
-  School
+  School,
+  PiggyBank
 } from "lucide-react";
 
 interface NavItemProps {
@@ -52,61 +53,67 @@ export function Sidebar({
       <div className="space-y-4 py-4">
         <div className="py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            {t("navigation.main")}
+            {t("Main")}
           </h2>
           <div className="space-y-1">
             <NavItem to="/" icon={<Home className="h-4 w-4" />} end>
-              {t("navigation.home")}
+              {t("Home")}
             </NavItem>
             <NavItem
               to="/subjects"
               icon={<BookOpen className="h-4 w-4" />}
             >
-              {t("navigation.subjects")}
+              {t("Subjects")}
             </NavItem>
             <NavItem
               to="/exam"
               icon={<PencilRuler className="h-4 w-4" />}
             >
-              {t("navigation.exam")}
+              {t("Exam")}
             </NavItem>
             <NavItem
               to="/teacher-connect"
               icon={<School className="h-4 w-4" />}
             >
-              {t("navigation.teacherConnect") || "Teacher Connect"}
+              {t("Teacher Connect") || "Teacher Connect"}
+            </NavItem>
+            <NavItem
+              to="/questionBank"
+              icon={<PiggyBank className="h-4 w-4" />}
+            >
+              {t("Question Bank")}
             </NavItem>
           </div>
         </div>
         <div className="py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            {t("navigation.personal")}
+            {t("Personal")}
           </h2>
           <div className="space-y-1">
             <NavItem
               to="/profile"
               icon={<User className="h-4 w-4" />}
             >
-              {t("navigation.profile")}
+              {t("Profile")}
             </NavItem>
             <NavItem
               to="/performance"
               icon={<BarChart3 className="h-4 w-4" />}
             >
-              {t("navigation.performance")}
+              {t("Performance")}
             </NavItem>
             <NavItem
               to="/ai-assistant"
               icon={<Bot className="h-4 w-4" />}
             >
-              {t("navigation.aiAssistant")}
+              {t("Ai Assistant")}
             </NavItem>
             {isAdmin && isAdmin() && (
               <NavItem
                 to="/admin"
                 icon={<Shield className="h-4 w-4 text-red-500" />}
               >
-                {t("navigation.admin")}
+                {t("Admin")}
               </NavItem>
             )}
           </div>

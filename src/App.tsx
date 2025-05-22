@@ -59,13 +59,13 @@ function App() {
           <Route path="/ai-assistant" element={<AIAssistant />} />
           <Route path="/questionBank" element={<QuestionBankExam />}/>
         </Routes>
-        {showFloatingButton && (
+        {/* {showFloatingButton && (
           <AIAssistantButton onClick={() => setIsDialogOpen(true)} />
         )}
         <AIAssistantDialog 
           open={isDialogOpen} 
           onOpenChange={setIsDialogOpen} 
-        />
+        /> */}
         <Toaster />
       </Router>
       </AuthProvider>

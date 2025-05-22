@@ -68,7 +68,7 @@ export const trackQuestionUsage = (examId: string, questionIds: string[]): void 
 export const fetchQuestionsBySubjectAndYear = async (
   count: number,
   subject: string,
-  year: number | string
+  year: number 
 ): Promise<{ questions: ExamQuestion[]; source: 'questionbank'; warning?: string }> => {
   if (!isOnline()) {
     throw new Error('An internet connection is required to fetch questions. Please connect and try again.');
@@ -83,17 +83,21 @@ export const fetchQuestionsBySubjectAndYear = async (
       if (attempt > 1) {
         toast.info(`Retrying question fetch (attempt ${attempt}/${maxAttempts})...`);
       }
+      
 
-      const { data, error } = await supabase
-        .from('questions')
-        .select('id, question_number, question_text, options, correct_answer, subject, year, explanation')
-        .eq('subject', subject)
-        .eq('year', typeof year === 'string' ? parseInt(year) : year)
-        .order('question_number', { ascending: true })
-        .limit(count * 2); 
+
+
+const firstTestId = await fetchId(subject,year)
+
+const { data, error } = await supabase
+   .from('questions')
+  .select('*')
+  .eq('test_id', firstTestId)
+  .order('question_number', { ascending: true })
+  .limit(count * 2);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', data);
         lastError = new Error(error.message);
         await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
         continue;
@@ -188,9 +192,9 @@ export const fetchDistinctYears = async (
   subject: string
 ): Promise<number[]> => {
   const { data, error } = await supabase
-    .from('questions')
+    .from('subject_tests')
     .select('year')
-    .eq('subject', subject);
+    .eq('subject_id', subject);
 
   if (error) throw new Error(error.message);
 
@@ -198,3 +202,21 @@ export const fetchDistinctYears = async (
     new Set((data || []).map(item => item.year).filter((y): y is number => typeof y === 'number'))
   ).sort((a, b) => b - a);
 };
+
+export const fetchId = async (
+  subject: string,
+  year: number
+): Promise<string> => {
+  const { data, error } = await supabase
+    .from('subject_tests')
+    .select('id')
+    .eq('subject_id', subject)
+    .eq('year', year);
+
+  if (error) throw new Error(error.message);
+console.log( data[0].id)
+  return data[0].id;
+};
+
+
+
