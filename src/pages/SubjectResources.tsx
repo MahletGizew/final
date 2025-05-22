@@ -13,6 +13,7 @@ import { subjects } from "@/utils/subjects";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SubjectTests } from "@/components/Subjects/SubjectTests";
 
+
 interface ResourceFile {
   id: string;
   title: string;
@@ -28,7 +29,7 @@ const SubjectResources = () => {
   const { subjectId } = useParams<{ subjectId: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { user } = useAuth();
+  const { user, userRole} = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [resources, setResources] = useState<ResourceFile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,12 @@ const SubjectResources = () => {
   };
 
   const handleUpload = async () => {
+        if (!user) return;
+        const role = userRole
+        if (role !== 'admin'|| 'teacher') {
+          toast.error(t('Only admins and teachers can send files for processing'));
+          return;
+        }
     if (!file) {
       toast.error(t("subjects.file_upload.no_file"));
       return;
@@ -230,17 +237,20 @@ const SubjectResources = () => {
         </section>
 
         <div className="container px-4 md:px-6 py-8">
+          
           <Tabs defaultValue="resources" className="space-y-6">
+            {userRole ==="student" || userRole === "teacher" ? (<div></div>):(
             <TabsList>
               <TabsTrigger value="resources">{t("Access resources")}</TabsTrigger>
               <TabsTrigger value="tests">{t("Upload Tests")}</TabsTrigger>
-            </TabsList>
+            </TabsList>)}
 
             <TabsContent value="resources">
               <section className="space-y-8">
-                <Card>
+                {(userRole === "student" ) ? (<div></div>):
+                (<Card>
                   <CardHeader>
-                    <CardTitle>{t("Upload file")}</CardTitle>
+                    <CardTitle>{t("Upload Resource file")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -267,7 +277,7 @@ const SubjectResources = () => {
                       </Button>
                     </div>
                   </CardContent>
-                </Card>
+                </Card>)}
 
                 <div>
                   <h2 className="text-2xl font-bold mb-6">{t("Resources List")}</h2>

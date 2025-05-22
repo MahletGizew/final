@@ -296,8 +296,17 @@ setExamCompleted(false);
                       </>
                     )}
                   </Button>
-                ) : (
-                  <Button onClick={handleReset}>Start New Exam</Button>
+                ) : (<div>
+                  {currentQuestionIndex < questions.length - 1 ? (<Button
+                  variant="outline"
+                    onClick={handleNext}
+                    disabled={!answers[currentQuestion?.id]}
+                  >
+                        Next  <ChevronRight className="mr-2 size-4" /> 
+                   
+                  </Button>):
+                  (<Button onClick={handleReset}>Start New Exam</Button>)}
+                  </div>
                 )}
               </div>
             </div>
