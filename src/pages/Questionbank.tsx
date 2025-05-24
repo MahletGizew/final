@@ -232,7 +232,7 @@ setExamCompleted(false);
                         <SelectValue placeholder="Select count" />
                       </SelectTrigger>
                       <SelectContent>
-                        {[5, 10, 15, 20].map((num) => (
+                        {[5, 10, 15, 20, 65].map((num) => (
                           <SelectItem key={num} value={num.toString()}>
                             {num}
                           </SelectItem>

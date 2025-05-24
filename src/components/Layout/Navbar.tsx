@@ -37,7 +37,7 @@ const Navbar = () => {
                 <Sidebar className="h-full" />
               </SheetContent>
             </Sheet>
-            <span className="font-bold text-xl">{t("Ethio Exam Guidance")}</span>
+            <span className="font-bold text-xl">{t("Entrance Exam Preparation")}</span>
           </div>
           
           <div className="flex items-center gap-4">

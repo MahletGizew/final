@@ -42,6 +42,8 @@ function App() {
   }, []);
 
   return (
+    
+      <LanguageProvider>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <AuthProvider>
       <Router>
@@ -70,6 +72,8 @@ function App() {
       </Router>
       </AuthProvider>
     </ThemeProvider>
+      </LanguageProvider>
+   
   );
 }
 

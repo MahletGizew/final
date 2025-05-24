@@ -17,15 +17,10 @@ export interface Teacher {
 
 interface TeacherCardProps {
   teacher: Teacher;
+  onJoinCall: (callLink: string) => void; // New callback prop
 }
 
-export const TeacherCard = ({ teacher }: TeacherCardProps) => {
-  const handleJoinCall = () => {
-    if (teacher.call_link) {
-      window.open(teacher.call_link, "_blank");
-    }
-  };
-  
+export const TeacherCard = ({ teacher, onJoinCall }: TeacherCardProps) => {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -46,12 +41,15 @@ export const TeacherCard = ({ teacher }: TeacherCardProps) => {
           <Button variant="outline" size="sm" className="flex-1" asChild>
             <a href={teacher.resume_url} target="_blank" rel="noopener noreferrer">
               <FileText className="h-4 w-4 mr-2" />
-              Resume {teacher.resume_filename && `(${teacher.resume_filename.split('.').pop()})`}
+              Resume {teacher.resume_filename && `(${teacher.resume_filename.split(".").pop()})`}
             </a>
           </Button>
         )}
         {teacher.call_link && (
-          <Button onClick={handleJoinCall} className="flex-1">
+          <Button
+            onClick={() => onJoinCall(teacher.call_link!)}
+            className="flex-1"
+          >
             <Video className="h-4 w-4 mr-2" />
             Join Video Call
           </Button>

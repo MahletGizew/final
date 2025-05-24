@@ -67,6 +67,11 @@ const Navigation = () => {
           {t("Home")}
         </NavItem>
         
+
+         <NavItem to="/questionBank" icon={<PiggyBank className="h-4 w-4" />}>
+          {t("Question Bank")}
+        </NavItem>
+
         <NavItem to="/subjects" icon={<BookOpen className="h-4 w-4" />}>
           {t("Subjects")}
         </NavItem>
@@ -85,10 +90,6 @@ const Navigation = () => {
         
         <NavItem to="/ai-assistant" icon={<Bot className="h-4 w-4" />}>
           {t("AI Assistant")}
-        </NavItem>
-
-         <NavItem to="/questionBank" icon={<PiggyBank className="h-4 w-4" />}>
-          {t("Question Bank")}
         </NavItem>
         
         {isAdmin && isAdmin() && (

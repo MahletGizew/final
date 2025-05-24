@@ -22,7 +22,7 @@ const Performance = () => {
 
   // Get user-specific data
   const { 
-    activities: userActivities, 
+        activities: userActivities, 
     progress: userProgress,
     isLoading 
   } = useUserData();
