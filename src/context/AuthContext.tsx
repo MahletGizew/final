@@ -103,15 +103,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      return { error };
-    } catch (err) {
-      console.error("Error in signUp:", err);
-      return { error: err };
+const signUp = async (email: string, password: string) => {
+  try {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (data?.user) {
+      // Call Edge Function to assign role
+      await fetch("https://toigsarjwwediuelpxvi.supabase.co/functions/v1/Assign_roles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: data.user.id }),
+      });
     }
-  };
+
+    return { error };
+  } catch (err) {
+    console.error("Error in signUp:", err);
+    return { error: err };
+  }
+};
+
 
   const signOut = async () => {
     setLoading(true);

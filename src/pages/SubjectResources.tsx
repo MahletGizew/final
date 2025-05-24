@@ -74,10 +74,11 @@ const SubjectResources = () => {
   const handleUpload = async () => {
         if (!user) return;
         const role = userRole
-        if (role !== 'admin'|| 'teacher') {
-          toast.error(t('Only admins and teachers can send files for processing'));
-          return;
-        }
+       if (role !== 'admin' && role !== 'teacher') {
+  toast.error(t('Only admins and teachers can send files for processing'));
+  return;
+}
+
     if (!file) {
       toast.error(t("subjects.file_upload.no_file"));
       return;
