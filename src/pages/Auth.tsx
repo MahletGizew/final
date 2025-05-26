@@ -34,7 +34,7 @@ const Auth = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   if (user && !loading) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   const passwordRequirements = [
@@ -55,7 +55,7 @@ const Auth = () => {
       const { error } = await signIn(email, password);
       if (error) throw error;
       toast.success(t("Sign in success"));
-      navigate("/");
+      navigate("/home");
     } catch (error: any) {
       toast.error(error.message || t("Sign in error"));
     } finally {

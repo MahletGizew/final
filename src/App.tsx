@@ -25,6 +25,8 @@ import NotFound from "./pages/NotFound";
 import ApplyTeacher from "./pages/ApplyTeacher";
 import TeacherRequestDetail from "./pages/TeacherRequestDetail";
 import EmailVerificationSent from "./pages/EmailVerificationSent";
+import WelcomePage from "./pages/WelcomePage";
+import TeacherApplicationStatus from "./pages/TeacherApplicationStatus";
 
 function App() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -66,6 +68,14 @@ function App() {
     element={
       <ProtectedRoute >
         <Profile />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/home"
+    element={
+      <ProtectedRoute >
+        <WelcomePage />
       </ProtectedRoute>
     }
   />
@@ -138,6 +148,14 @@ function App() {
     element={
       <ProtectedRoute>
         <AIAssistant />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/application_status"
+    element={
+      <ProtectedRoute>
+        <TeacherApplicationStatus />
       </ProtectedRoute>
     }
   />

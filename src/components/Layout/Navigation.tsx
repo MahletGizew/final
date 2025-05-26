@@ -64,7 +64,7 @@ const Navigation = () => {
   return (
     <NavigationMenu className="max-w-none justify-start">
       <NavigationMenuList className="flex-wrap space-x-0 space-y-0 md:space-x-2 md:space-y-0">
-        <NavItem to="/" icon={<Home className="h-4 w-4" />}>
+        <NavItem to="/home" icon={<Home className="h-4 w-4" />}>
           {t("Home")}
         </NavItem>
         

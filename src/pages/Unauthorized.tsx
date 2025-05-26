@@ -36,7 +36,7 @@ const Unauthorized = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild variant="default">
-            <Link to="/" className="flex items-center">
+            <Link to="/home" className="flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" />
               {"Go to Home"}
             </Link>

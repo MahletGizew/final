@@ -4,8 +4,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Layout/Navbar";
+import { useNavigate } from 'react-router-dom';
+
 
 const ApplyTeacher = () => {
+    const navigate = useNavigate();
+
   const { user } = useAuth();
   const [form, setForm] = useState({
     full_name: "",
@@ -240,6 +244,20 @@ const handleSubmit = async (e: React.FormEvent) => {
           {loading ? "Submitting..." : "Submit Application"}
         </Button>
       </form>
+      {/* Application Status Section */}
+<div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+  <p className="text-sm text-gray-700 mb-2">
+    Already applied? You can check the status of your application here:
+  </p>
+  <Button 
+    type="button" 
+    className="w-full" 
+    onClick={() => navigate('/application_status')}
+  >
+    View Application Status
+  </Button>
+</div>
+
     </div>
     </div>
     </>

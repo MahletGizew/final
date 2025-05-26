@@ -66,7 +66,7 @@ export const trackQuestionUsage = (examId: string, questionIds: string[]): void 
  * Fetches questions from the questionbank table based on subject/year/count
  */
 export const fetchQuestionsBySubjectAndYear = async (
-  count: number,
+    count: number | null | undefined,
   subject: string,
   year: number 
 ): Promise<{ questions: ExamQuestion[]; source: 'questionbank'; warning?: string }> => {
@@ -89,12 +89,17 @@ export const fetchQuestionsBySubjectAndYear = async (
 
 const firstTestId = await fetchId(subject,year)
 
-const { data, error } = await supabase
-   .from('questions')
-  .select('*')
-  .eq('test_id', firstTestId)
-  .order('question_number', { ascending: true })
-  .limit(count * 2);
+ let query = supabase
+        .from('questions')
+        .select('*')
+        .eq('test_id', firstTestId)
+        .order('question_number', { ascending: true });
+
+      if (count) {
+        query = query.limit(count * 2); // Fetch more than needed to allow deduplication
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Supabase error:', data);

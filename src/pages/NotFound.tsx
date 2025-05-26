@@ -30,7 +30,7 @@ const NotFound = () => {
         </p>
 
         <Button asChild variant="default">
-          <a href="/" className="flex items-center">
+          <a href="/home" className="flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Go Back Home
           </a>

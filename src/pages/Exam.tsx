@@ -32,9 +32,11 @@
   import QuestionNavigator from "@/components/Exam/QuestionNavigator";
 
 
+
   const EXAM_DURATION = 12; // minutes
 
   const Exam = () => {
+    const AVERAGE_TIME_PER_QUESTION = 90; // seconds
     const { toast } = useToast();
     const { addExamResult } = useAppContext();
     const [selectedSubject, setSelectedSubject] = useState("");
@@ -57,10 +59,51 @@
     const [showAnalysis, setShowAnalysis] = useState(false);
     const [analysisData, setAnalysisData] = useState<string | null>(null);
     const [analysisLoading, setAnalysisLoading] = useState(false);
+    const [examDuration, setExamDuration] = useState(0); // in seconds
 
     const { isOnline, wasOffline } = useNetworkStatus();
 
     const selectedSubjectObj = subjects.find(s => s.id === selectedSubject);
+
+    const Timer = ({
+  duration,
+  onTimeout,
+}: {
+  duration: number;
+  onTimeout: () => void;
+}) => {
+  const [timeLeft, setTimeLeft] = useState(duration);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onTimeout();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [duration, onTimeout]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="text-sm font-medium text-red-600 dark:text-red-400 mb-4">
+      ⏰ Time Left: {formatTime(timeLeft)}
+    </div>
+  );
+};
+
+
+
     
     const handleGenerateExam = async () => {
       if (!selectedSubject) {
@@ -111,7 +154,8 @@
         setCurrentQuestionIndex(0);
         setAnswers({});
         setExamCompleted(false);
-        
+        const totalTime = questionCount * AVERAGE_TIME_PER_QUESTION;
+    setExamDuration(totalTime);
         toast({
           title: `Exam Ready - AI-Generated Questions`,
           description: `${result.questions.length} challenging questions have been prepared for you by our AI. Good luck!`
@@ -185,7 +229,7 @@
       
       // Set exam as completed
       setExamCompleted(true);
-      
+      setExamDuration(0)
       // Check if we should generate analysis
       if (isOnline && examQuestions.length > 0) {
         await generateExamAnalysis();
@@ -455,6 +499,22 @@
             </section>
           ) : (
             <section className="py-10">
+             {examType !== "practice" && !examCompleted ?(<Timer
+  duration={examDuration}
+  onTimeout={() => {
+    if (!examCompleted) {
+      toast({
+        title: "Time's Up!",
+        description: "Your session has ended automatically.",
+        variant: "warning",
+      });
+      handleFinishExam();
+    }
+  }}
+/>):(<div style={{ padding: '20px' }}></div> // ✅ Proper usage
+
+)}
+
               <div className="container px-4 md:px-6">
                <div className="flex gap-6">
   <QuestionNavigator

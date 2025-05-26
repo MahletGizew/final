@@ -12,7 +12,7 @@ import { School, UserPlus } from "lucide-react";
 
 const TeacherConnect = () => {
   const { t } = useLanguage();
-  const { isAdmin } = useAuth();
+  const { isAdmin ,userRole} = useAuth();
   const [activeTab, setActiveTab] = useState<string>("view");
   const [activeMeeting, setActiveMeeting] = useState<null | string>(null);
 
@@ -38,12 +38,12 @@ const TeacherConnect = () => {
             </p>
           </div>
           
-          {isAdmin() ? (
+          {userRole==="teacher" ? (
             <Tabs defaultValue="view" value={activeTab} onValueChange={setActiveTab}>
               <div className="flex justify-between items-center mb-6">
                 <TabsList>
                   <TabsTrigger value="view">View Teachers</TabsTrigger>
-                  <TabsTrigger value="add">Add Teacher</TabsTrigger>
+                  <TabsTrigger value="add">Add Study Session</TabsTrigger>
                 </TabsList>
               </div>
               
@@ -56,10 +56,10 @@ const TeacherConnect = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <UserPlus className="h-5 w-5" />
-                      Add New Teacher
+                      Add New Study Session
                     </CardTitle>
                     <CardDescription>
-                      Add a teacher's details and contact information
+                      Add session details and contact information
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

@@ -27,7 +27,7 @@ const QuestionBankExam = () => {
   const [selectedYear, setSelectedYear] = useState("");
   const [questionCount, setQuestionCount] = useState(10);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
-
+const [examDuration, setExamDuration] = useState(0); // in seconds
   const [examStarted, setExamStarted] = useState(false);
   const [questions, setQuestions] = useState<ExamQuestionType[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -67,39 +67,52 @@ const ProgressIndicator = ({ current, total }: { current: number; total: number 
     />
   );
 };
-  const handleStartExam = async () => {
-    if (!selectedSubject || !selectedYear) {
-      toast({
-        title: "Missing Selection",
-        description: "Please select both subject and year",
-        variant: "destructive"
-      });
-      return;
+const AVERAGE_TIME_PER_QUESTION = 90; // seconds
+
+const handleStartExam = async () => {
+  if (!selectedSubject || !selectedYear) {
+    toast({
+      title: "Missing Selection",
+      description: "Please select both subject and year",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  toast({ title: "Fetching Questions..." });
+
+  try {
+    const result = await fetchQuestionsBySubjectAndYear(
+      questionCount,
+      selectedSubject,
+      Number(selectedYear)
+    );
+
+    if (!result || result.questions.length === 0) {
+      throw new Error("No questions found for this subject and year.");
     }
 
-    toast({ title: "Fetching Questions..." });
+    setQuestions(result.questions);
+    setExamStarted(true);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setExamCompleted(false);
 
-    try {
-     const result = await fetchQuestionsBySubjectAndYear(questionCount, selectedSubject, Number(selectedYear));
+    // Set dynamic exam duration
+    const totalTime = questionCount * AVERAGE_TIME_PER_QUESTION;
+    setExamDuration(totalTime);
+  } catch (error) {
+    toast({
+      title: "Failed to Load Questions",
+      description:
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.",
+      variant: "destructive",
+    });
+  }
+};
 
-if (!result || result.questions.length === 0) {
-  throw new Error("No questions found for this subject and year.");
-}
-
-setQuestions(result.questions);
-setExamStarted(true);
-setCurrentQuestionIndex(0);
-setAnswers({});
-setExamCompleted(false);
-
-    } catch (error) {
-      toast({
-        title: "Failed to Load Questions",
-        description: error instanceof Error ? error.message : "An unexpected error occurred.",
-        variant: "destructive"
-      });
-    }
-  };
 
 
   const getCorrectAnswer = (id: string): string => {
@@ -107,6 +120,42 @@ setExamCompleted(false);
   return q?.correct_answer ?? "";
 };
 
+const Timer = ({
+  duration,
+  onTimeout,
+}: {
+  duration: number;
+  onTimeout: () => void;
+}) => {
+  const [timeLeft, setTimeLeft] = useState(duration);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onTimeout();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [duration, onTimeout]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="text-sm font-medium text-red-600 dark:text-red-400 mb-4">
+      ⏰ Time Left: {formatTime(timeLeft)}
+    </div>
+  );
+};
 
   const handleSelectAnswer = (questionId: string, answer: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
@@ -259,11 +308,24 @@ setExamCompleted(false);
         ) : (
             
           <section className="py-10">
-  <ProgressIndicator current={currentQuestionIndex + 1} total={questions.length} />
+  
 
   {examStarted && (
     <div className="container px-4 md:px-6 max-w-7xl mx-auto flex gap-6">
-      
+      <ProgressIndicator current={currentQuestionIndex + 1} total={questions.length} />
+<Timer
+  duration={examDuration}
+  onTimeout={() => {
+    if (!examCompleted) {
+      toast({
+        title: "Time's Up!",
+        description: "Your session has ended automatically.",
+        variant: "warning",
+      });
+      handleFinishExam();
+    }
+  }}
+/>
       {/* Navigator side panel */}
       <QuestionNavigator
         questions={questions}
