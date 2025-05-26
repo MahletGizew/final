@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import ApplyTeacher from "./pages/ApplyTeacher";
 import TeacherRequestDetail from "./pages/TeacherRequestDetail";
+import EmailVerificationSent from "./pages/EmailVerificationSent";
 
 function App() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -57,6 +58,7 @@ function App() {
   {/* Public Routes */}
   <Route path="/" element={<Home />} />
   <Route path="/auth" element={<Auth />} />
+  <Route path="/verification" element={<EmailVerificationSent />} />
 
   {/* Protected Routes for All Authenticated Users */}
   <Route

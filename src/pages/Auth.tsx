@@ -88,13 +88,13 @@ const Auth = () => {
       if (error) throw error;
 
       toast.success(t("auth.signup_success"));
-
-      const signInResult = await signIn(email, password);
-      if (signInResult.error) {
-        toast.error(t("auth.auto_signin_error"));
-      } else {
-        navigate("/");
-      }
+      navigate("/verification")
+      // const signInResult = await signIn(email, password);
+      // if (signInResult.error) {
+      //   toast.error(t("auth.auto_signin_error"));
+      // } else {
+      //   navigate("/");
+      // }
     } catch (error: any) {
       toast.error(error.message || t("auth.signup_error"));
     } finally {
