@@ -18,6 +18,12 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import QuestionBankExam from "./pages/Questionbank";
 import SubjectResources from "./pages/SubjectResources";
+import Unauthorized from "./pages/Unauthorized";
+import AdminRoute from "./components/Auth/AdminRoute";
+import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import NotFound from "./pages/NotFound";
+import ApplyTeacher from "./pages/ApplyTeacher";
+import TeacherRequestDetail from "./pages/TeacherRequestDetail";
 
 function App() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,19 +54,118 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-        <Route path="/" element={<Home />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/subjects" element={<Subjects />} />
-          <Route path="/subjects/:subjectId/resources" element={<SubjectResources />} />
-          <Route path="/subjects/:subjectId" element={<SubjectResources />} />
-          <Route path="/exam" element={<Exam />} />
-          <Route path="/teacher-connect" element={<TeacherConnect />} />
-          <Route path="/performance" element={<Performance />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/ai-assistant" element={<AIAssistant />} />
-          <Route path="/questionBank" element={<QuestionBankExam />}/>
-        </Routes>
+  {/* Public Routes */}
+  <Route path="/" element={<Home />} />
+  <Route path="/auth" element={<Auth />} />
+
+  {/* Protected Routes for All Authenticated Users */}
+  <Route
+    path="/profile"
+    element={
+      <ProtectedRoute >
+        <Profile />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/subjects"
+    element={
+      <ProtectedRoute >
+        <Subjects />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/subjects/:subjectId/resources"
+    element={
+      <ProtectedRoute >
+        <SubjectResources />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/applyteacher"
+    element={
+      <ProtectedRoute >
+        <ApplyTeacher/>
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/subjects/:subjectId"
+    element={
+      <ProtectedRoute >
+        <SubjectResources />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/exam"
+    element={
+      <ProtectedRoute>
+        <Exam />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/teacher-connect"
+    element={
+      <ProtectedRoute>
+        <TeacherConnect />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/performance"
+    element={
+      <ProtectedRoute>
+        <Performance />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/questionBank"
+    element={
+      <ProtectedRoute>
+        <QuestionBankExam />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/ai-assistant"
+    element={
+      <ProtectedRoute>
+        <AIAssistant />
+      </ProtectedRoute>
+    }
+  />
+
+  {/* Admin Route */}
+  <Route
+    path="/admin"
+    element={
+      <AdminRoute>
+        <Admin />
+      </AdminRoute>
+    }
+  />
+  <Route
+  path="/admin/teacher-request/:id"
+  element={
+    <AdminRoute>
+      <TeacherRequestDetail/>
+    </AdminRoute>
+  }
+/>
+
+
+  {/* Unauthorized Fallback */}
+  <Route path="/unauthorized" element={<Unauthorized />} />
+
+  {/* 404 Fallback */}
+  <Route path="*" element={<NotFound/>} />
+</Routes>
+
         {/* {showFloatingButton && (
           <AIAssistantButton onClick={() => setIsDialogOpen(true)} />
         )}
@@ -68,7 +173,9 @@ function App() {
           open={isDialogOpen} 
           onOpenChange={setIsDialogOpen} 
         /> */}
-        <Toaster />
+
+<Toaster/>
+
       </Router>
       </AuthProvider>
     </ThemeProvider>

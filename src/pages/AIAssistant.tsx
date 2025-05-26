@@ -196,7 +196,11 @@ const AIAssistant = () => {
           </form>
         </div>
       </main>
-
+      <footer className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 text-white text-center py-3 px-4 shadow-lg text-sm font-medium select-none">
+      <p>
+        🤖 This content is AI-generated and might contain inaccuracies. Please verify before use.
+      </p>
+    </footer>
       <Footer />
     </div>
   );

@@ -1,28 +1,25 @@
-
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+// components/ProtectedRoute.tsx
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { Loader } from "lucide-react"; // or your custom loader
+import React from "react";
 
-interface ProtectedRouteProps {
-  children?: React.ReactNode;
-}
+const ProtectedRoute = ({ children}: { children: React.ReactNode; }) => {
+  const { user, loading, userRole } = useAuth();
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
-  
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-spin h-10 w-10 rounded-full border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader className="animate-spin h-6 w-6 text-primary" />
+        <span className="ml-2 text-muted-foreground">Checking access...</span>
       </div>
     );
   }
-  
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
 
-  return children ? <>{children}</> : <Outlet />;
+  if (!user) return <Navigate to="/unauthorized" replace />;
+
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

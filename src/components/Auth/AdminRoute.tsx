@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -9,7 +8,7 @@ interface AdminRouteProps {
 
 const AdminRoute = ({ children }: AdminRouteProps) => {
   const { user, loading, isAdmin } = useAuth();
-  
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -17,16 +16,16 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
       </div>
     );
   }
-  
+
   if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  if (!isAdmin()) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return children ? <>{children}</> : <Outlet />;
+  if (!isAdmin?.()) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children ?? <Outlet />;
 };
 
 export default AdminRoute;

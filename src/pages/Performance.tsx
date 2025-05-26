@@ -44,15 +44,15 @@ const Performance = () => {
             <div className="flex flex-col items-center text-center mb-8">
               <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4">
                 <Activity className="mr-1 size-3.5" />
-                <span>{t("performance.title")}</span>
+                <span>{t("Your Performance")}</span>
               </div>
 
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl mb-4">
-                {t("performance.heading")}
+                {t("Track Your Progress and Improve Smarter")}
               </h1>
 
               <p className="max-w-[700px] text-muted-foreground md:text-lg">
-                {t("performance.subtitle")}
+                {t("Review your recent exam performance, analyze subject-wise progress, and get personalized study recommendations to boost your learning journey.")}
               </p>
             </div>
 

@@ -13,7 +13,7 @@ interface AuthContextType {
   loading: boolean;
   userRole: UserRole | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string ,fullname: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: () => boolean;
 }
@@ -103,9 +103,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-const signUp = async (email: string, password: string) => {
+const signUp = async (email: string, password: string, fullname: string) => {
   try {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: {
+      full_name: fullname
+    },
+  },
+});
 
     if (data?.user) {
       // Call Edge Function to assign role

@@ -21,7 +21,8 @@ import {
   Shield,
   School,
   VaultIcon,
-  PiggyBank
+  PiggyBank,
+  BookPlus
 } from "lucide-react";
 
 const Navigation = () => {
@@ -90,6 +91,10 @@ const Navigation = () => {
         
         <NavItem to="/ai-assistant" icon={<Bot className="h-4 w-4" />}>
           {t("AI Assistant")}
+        </NavItem>
+
+         <NavItem to="/applyteacher" icon={<BookPlus className="h-4 w-4" />}>
+          {t("Become a Teacher")}
         </NavItem>
         
         {isAdmin && isAdmin() && (

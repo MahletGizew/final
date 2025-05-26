@@ -29,6 +29,8 @@
   import { Alert, AlertDescription } from "@/components/ui/alert";
   import { toast } from "sonner";
   import { supabase } from "@/integrations/supabase/client";
+  import QuestionNavigator from "@/components/Exam/QuestionNavigator";
+
 
   const EXAM_DURATION = 12; // minutes
 
@@ -271,6 +273,11 @@
     }, [selectedSubject, questionCount, unitObjective]);
     
     const currentQuestion = examQuestions[currentQuestionIndex];
+    const getCorrectAnswer = (id: string): string => {
+  const question = examQuestions.find(q => q.id === id);
+  return question?.correct_answer || "";
+};
+
     
     return (
       <div className="min-h-screen flex flex-col">
@@ -449,7 +456,20 @@
           ) : (
             <section className="py-10">
               <div className="container px-4 md:px-6">
-                <div className="mx-auto max-w-3xl">
+               <div className="flex gap-6">
+  <QuestionNavigator
+  questions={examQuestions}
+  currentQuestionIndex={currentQuestionIndex}
+  answers={answers}
+  onJumpToQuestion={setCurrentQuestionIndex}
+  completed={examCompleted}
+  getCorrectAnswer={(id) => {
+    const question = examQuestions.find((q) => q.id === id);
+    return question?.correct_answer || "";
+  }}
+/>
+
+    <div className="flex-1">
                   <div className="mb-8">
                     <Button variant="outline" onClick={() => setExamStarted(false)} className="mb-4">
                       <ChevronLeft className="mr-2 size-4" /> Back to Setup
@@ -482,14 +502,17 @@
                       onNewExam={handleStartNewExam}
                     />
                   ) : currentQuestion ? (
+                     <>
+                     
                     <ExamQuestion
-                      question={currentQuestion}
-                      selectedAnswer={answers[currentQuestion.id] || null}
-                      onSelectAnswer={(answer) => handleSelectAnswer(currentQuestion.id, answer)}
-                      showCorrectAnswer={examCompleted}
-                      questionNumber={currentQuestionIndex + 1}
-                      source={questionSource}
+                    question={currentQuestion}
+                    selectedAnswer={answers[currentQuestion.id] || null}
+                    onSelectAnswer={(answer) => handleSelectAnswer(currentQuestion.id, answer)}
+                    showCorrectAnswer={examCompleted}
+                    questionNumber={currentQuestionIndex + 1}
+                    source={questionSource}
                     />
+                    </>
                   ) : null}
                   
                   {!showAnalysis && (
@@ -523,6 +546,7 @@
                       )}
                     </div>
                   )}
+                </div>
                 </div>
               </div>
             </section>
@@ -601,9 +625,13 @@
           )}
         </main>
         
-        <AIAssistantButton onClick={() => setAiDialogOpen(true)} />
-        <AIAssistantDialog open={aiDialogOpen} onOpenChange={setAiDialogOpen} />
-        
+        {/* <AIAssistantButton onClick={() => setAiDialogOpen(true)} />
+        <AIAssistantDialog open={aiDialogOpen} onOpenChange={setAiDialogOpen} /> */}
+        <footer className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 text-white text-center py-3 px-4 shadow-lg text-sm font-medium select-none">
+      <p>
+        🤖 This content is AI-generated and might contain inaccuracies. Please verify before use.
+      </p>
+    </footer>
         <Footer />
       </div>
     );

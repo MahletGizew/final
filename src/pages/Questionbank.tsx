@@ -14,6 +14,7 @@ import ExamQuestion from "@/components/Exam/ExamQuestion";
 import { ChevronLeft, ChevronRight, Check, ClipboardList } from "lucide-react";
 import ProgressBar from '@ramonak/react-progress-bar';
 import { ReactTimeoutButton } from 'react-timeout-button';
+import QuestionNavigator from "@/components/Exam/QuestionNavigator";
 
 
 
@@ -99,6 +100,13 @@ setExamCompleted(false);
       });
     }
   };
+
+
+  const getCorrectAnswer = (id: string): string => {
+  const q = questions.find((q) => q.id === id);
+  return q?.correct_answer ?? "";
+};
+
 
   const handleSelectAnswer = (questionId: string, answer: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
@@ -251,66 +259,77 @@ setExamCompleted(false);
         ) : (
             
           <section className="py-10">
-            <ProgressIndicator current={currentQuestionIndex + 1} total={questions.length} />
-            {/* <Timer duration={1800} /> 30 minutes */}
+  <ProgressIndicator current={currentQuestionIndex + 1} total={questions.length} />
 
+  {examStarted && (
+    <div className="container px-4 md:px-6 max-w-7xl mx-auto flex gap-6">
+      
+      {/* Navigator side panel */}
+      <QuestionNavigator
+        questions={questions}
+        answers={answers}
+        currentQuestionIndex={currentQuestionIndex}
+        onJumpToQuestion={setCurrentQuestionIndex}
+        completed={examCompleted}
+        getCorrectAnswer={getCorrectAnswer}
+      />
 
-            <div className="container px-4 md:px-6 max-w-3xl mx-auto">
-              <div className="mb-6 flex justify-between items-center">
-                <Button variant="outline" onClick={handleReset}>
-                  <ChevronLeft className="mr-2 size-4" /> Back
-                </Button>
-                <div className="text-sm text-muted-foreground">
-                  Question {currentQuestionIndex + 1} of {questions.length}
-                </div>
-              </div>
+      {/* Main content area */}
+      <div className="flex-1 max-w-3xl">
+        <div className="mb-6 flex justify-between items-center">
+          <Button variant="outline" onClick={handleReset}>
+            <ChevronLeft className="mr-2 size-4" /> Back
+          </Button>
+          <div className="text-sm text-muted-foreground">
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </div>
+        </div>
 
-              {currentQuestion && (
-                <ExamQuestion
-                  question={currentQuestion}
-                  selectedAnswer={answers[currentQuestion.id]}
-                  onSelectAnswer={(ans) => handleSelectAnswer(currentQuestion.id, ans)}
-                  showCorrectAnswer={examCompleted}
-                  questionNumber={currentQuestionIndex + 1}
-                  source="questionbank"
-                />
+        {currentQuestion && (
+          <ExamQuestion
+            question={currentQuestion}
+            selectedAnswer={answers[currentQuestion.id]}
+            onSelectAnswer={(ans) => handleSelectAnswer(currentQuestion.id, ans)}
+            showCorrectAnswer={examCompleted}
+            questionNumber={currentQuestionIndex + 1}
+            source="questionbank"
+          />
+        )}
+
+        <div className="flex justify-between mt-6">
+          <Button variant="outline" onClick={handlePrev} disabled={currentQuestionIndex === 0}>
+            <ChevronLeft className="mr-2 size-4" /> Previous
+          </Button>
+
+          {!examCompleted ? (
+            <Button onClick={handleNext} disabled={!answers[currentQuestion?.id]}>
+              {currentQuestionIndex < questions.length - 1 ? (
+                <>
+                  Next <ChevronRight className="ml-2 size-4" />
+                </>
+              ) : (
+                <>
+                  Finish Exam <Check className="ml-2 size-4" />
+                </>
               )}
-
-              <div className="flex justify-between mt-6">
-                <Button variant="outline" onClick={handlePrev} disabled={currentQuestionIndex === 0}>
-                  <ChevronLeft className="mr-2 size-4" /> Previous
+            </Button>
+          ) : (
+            <div>
+              {currentQuestionIndex < questions.length - 1 ? (
+                <Button variant="outline" onClick={handleNext} disabled={!answers[currentQuestion?.id]}>
+                  Next <ChevronRight className="mr-2 size-4" />
                 </Button>
-
-                {!examCompleted ? (
-                  <Button
-                    onClick={handleNext}
-                    disabled={!answers[currentQuestion?.id]}
-                  >
-                    {currentQuestionIndex < questions.length - 1 ? (
-                      <>
-                        Next <ChevronRight className="ml-2 size-4" />
-                      </>
-                    ) : (
-                      <>
-                        Finish Exam <Check className="ml-2 size-4" />
-                      </>
-                    )}
-                  </Button>
-                ) : (<div>
-                  {currentQuestionIndex < questions.length - 1 ? (<Button
-                  variant="outline"
-                    onClick={handleNext}
-                    disabled={!answers[currentQuestion?.id]}
-                  >
-                        Next  <ChevronRight className="mr-2 size-4" /> 
-                   
-                  </Button>):
-                  (<Button onClick={handleReset}>Start New Exam</Button>)}
-                  </div>
-                )}
-              </div>
+              ) : (
+                <Button onClick={handleReset}>Start New Exam</Button>
+              )}
             </div>
-          </section>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+</section>
+
         )}
       </main>
 

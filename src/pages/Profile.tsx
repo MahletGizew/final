@@ -154,7 +154,7 @@ const Profile = () => {
   };
   
   // Get display name - use email if no display name is set
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || "Student";
+  const displayName = profile?.display_name || user.user_metadata.full_name || user?.email?.split('@')[0] ||"Student" ;
   
   return (
     <div className="min-h-screen flex flex-col">

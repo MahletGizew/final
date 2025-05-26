@@ -66,9 +66,10 @@ const Navbar = () => {
         </div>
         
         {/* Navigation menu - hidden on mobile */}
-        <div className="hidden md:block">
+        {user && <div className="hidden md:block">
           <Navigation />
-        </div>
+        </div>}
+        
       </div>
     </div>
   );

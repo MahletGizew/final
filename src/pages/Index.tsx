@@ -147,12 +147,12 @@ const Index = () => {
                 icon={LayoutDashboard}
                 className="bg-white shadow-md hover:shadow-xl transition-all duration-300"
               />
-              <FeatureCard
+              {/* <FeatureCard
                 title={t("Offline Feature")}
                 description={t("Study anytime, anywhere with our offline access to all your materials and practice tests.")}
                 icon={Network}
                 className="bg-white shadow-md hover:shadow-xl transition-all duration-300"
-              />
+              /> */}
               <FeatureCard
                 title={t("Previous Years Question Bank")}
                 description={t("Master the exam with access to a comprehensive bank of past years' questions.")}

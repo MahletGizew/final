@@ -14,6 +14,8 @@ const TeacherConnect = () => {
   const { t } = useLanguage();
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("view");
+  const [activeMeeting, setActiveMeeting] = useState<null | string>(null);
+
   
   const handleRefresh = () => {
     // Force a re-render of the TeachersList component when a new teacher is added
@@ -68,6 +70,7 @@ const TeacherConnect = () => {
             </Tabs>
           ) : (
             <TeachersList />
+            
           )}
         </div>
       </main>
