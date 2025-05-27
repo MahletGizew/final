@@ -27,7 +27,7 @@ import {
 
 const Navigation = () => {
   const { t } = useLanguage();
-  const { isAdmin } = useAuth();
+  const { isAdmin , userRole} = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -68,34 +68,38 @@ const Navigation = () => {
           {t("Home")}
         </NavItem>
         
-
-         <NavItem to="/questionBank" icon={<PiggyBank className="h-4 w-4" />}>
-          {t("Question Bank")}
+        {userRole === "student" && (
+  <>
+  <NavItem to="/questionBank" icon={<PiggyBank className="h-4 w-4" />}>
+          {t("Entrance Exam")}
         </NavItem>
+  <NavItem to="/exam" icon={<PencilRuler className="h-4 w-4" />}>
+          {t("Exam")}
+        </NavItem>
+    <NavItem to="/applyteacher" icon={<BookPlus className="h-4 w-4" />}>
+      {t("Become a Teacher")}
+    </NavItem>
+    <NavItem to="/performance" icon={<BarChart3 className="h-4 w-4" />}>
+      {t("Performance")}
+    </NavItem>
+  </>
+)}
+
+
 
         <NavItem to="/subjects" icon={<BookOpen className="h-4 w-4" />}>
           {t("Subjects")}
         </NavItem>
         
-        <NavItem to="/exam" icon={<PencilRuler className="h-4 w-4" />}>
-          {t("Exam")}
+        
+        <NavItem to="/ai-assistant" icon={<Bot className="h-4 w-4" />}>
+          {t("AI Assistant")}
         </NavItem>
         
         <NavItem to="/teacher-connect" icon={<School className="h-4 w-4" />}>
           {t("Connect with teacher") || "Teacher Connect"}
         </NavItem>
         
-        <NavItem to="/performance" icon={<BarChart3 className="h-4 w-4" />}>
-          {t("Performance")}
-        </NavItem>
-        
-        <NavItem to="/ai-assistant" icon={<Bot className="h-4 w-4" />}>
-          {t("AI Assistant")}
-        </NavItem>
-
-         <NavItem to="/applyteacher" icon={<BookPlus className="h-4 w-4" />}>
-          {t("Become a Teacher")}
-        </NavItem>
         
         {isAdmin && isAdmin() && (
           <NavItem to="/admin" icon={<Shield className="h-4 w-4 text-red-500" />}>

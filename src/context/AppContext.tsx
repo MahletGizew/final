@@ -121,13 +121,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       score,
       date: new Date().toISOString(),
       totalQuestions,
-      user_id: user?.id,  // Store the user ID with the exam
+      user_id: user.id,  // Store the user ID with the exam
       offlineGenerated
     };
 
     setRecentExams((prev) => {
       const updated = [newExam, ...prev].slice(0, 10); // Keep only 10 most recent
+      console.log("here")
       localStorage.setItem("recentExams", JSON.stringify(updated));
+      console.log("there")
 
       // If user is authenticated, sync this exam to the database
       if (user) {

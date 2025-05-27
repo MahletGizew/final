@@ -7,12 +7,8 @@ import fs from 'fs';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "EntranceExamPrep",
+    host: 'localhost',
     port: 8080,
-    https: {
-        key: fs.readFileSync(path.resolve(__dirname, 'cert/EntranceExamPrep-key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, 'cert/EntranceExamPrep.pem')),
-      },
   },
   plugins: [
     react(),

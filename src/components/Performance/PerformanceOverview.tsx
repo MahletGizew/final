@@ -53,7 +53,7 @@ const PerformanceOverview = ({ userId }: PerformanceOverviewProps) => {
       const subjectName = subjects.find((s) => s.id === exam.subject)?.name || exam.subject;
       return {
         name: subjectName,
-        score: Math.round((exam.score / exam.totalQuestions) * 100),
+        score: Math.round((exam.score / exam.totalQuestions)),
         fullMark: 100,
         date: formatDistanceToNow(new Date(exam.date), { addSuffix: true }),
       };

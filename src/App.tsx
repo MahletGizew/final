@@ -14,6 +14,7 @@ import Exam from "@/pages/Exam";
 import TeacherConnect from "@/pages/TeacherConnect";
 import Performance from "@/pages/Performance";
 import Admin from "@/pages/Admin";
+import { AppProvider } from "./context/AppContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import QuestionBankExam from "./pages/Questionbank";
@@ -27,6 +28,7 @@ import TeacherRequestDetail from "./pages/TeacherRequestDetail";
 import EmailVerificationSent from "./pages/EmailVerificationSent";
 import WelcomePage from "./pages/WelcomePage";
 import TeacherApplicationStatus from "./pages/TeacherApplicationStatus";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -55,6 +57,7 @@ function App() {
       <LanguageProvider>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <AuthProvider>
+      <AppProvider>
       <Router>
         <Routes>
   {/* Public Routes */}
@@ -177,7 +180,14 @@ function App() {
     </AdminRoute>
   }
 />
-
+<Route
+  path="/admin/user-profile/${userRole.user_id}"
+  element={
+    <AdminRoute>
+      <UserProfile/>
+    </AdminRoute>
+  }
+/>
 
   {/* Unauthorized Fallback */}
   <Route path="/unauthorized" element={<Unauthorized />} />
@@ -197,6 +207,7 @@ function App() {
 <Toaster/>
 
       </Router>
+      </AppProvider>
       </AuthProvider>
     </ThemeProvider>
       </LanguageProvider>

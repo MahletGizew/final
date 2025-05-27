@@ -16,9 +16,8 @@ export const StudySessionsTable = ({ userId }: { userId: string }) => {
   useEffect(() => {
     const fetchSessions = async () => {
       const { data, error } = await supabase
-        .from('study_sessions')
+        .from('live_sessions')
         .select('*')
-        .eq('user_id', userId)
         .order('start_time', { ascending: true });
 
       if (!error && data) setSessions(data);

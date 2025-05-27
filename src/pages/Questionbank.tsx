@@ -25,7 +25,7 @@ const QuestionBankExam = () => {
 
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
-  const [questionCount, setQuestionCount] = useState(10);
+  const [questionCount, setQuestionCount] = useState(0);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
 const [examDuration, setExamDuration] = useState(0); // in seconds
   const [examStarted, setExamStarted] = useState(false);
@@ -83,10 +83,10 @@ const handleStartExam = async () => {
 
   try {
     const result = await fetchQuestionsBySubjectAndYear(
-      questionCount,
       selectedSubject,
       Number(selectedYear)
     );
+  console.log("Fetched result:", result);
 
     if (!result || result.questions.length === 0) {
       throw new Error("No questions found for this subject and year.");
@@ -99,7 +99,7 @@ const handleStartExam = async () => {
     setExamCompleted(false);
 
     // Set dynamic exam duration
-    const totalTime = questionCount * AVERAGE_TIME_PER_QUESTION;
+    const totalTime = result.questions.length  * AVERAGE_TIME_PER_QUESTION;
     setExamDuration(totalTime);
   } catch (error) {
     toast({
@@ -279,7 +279,7 @@ const Timer = ({
                     </Select>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <Label>Number of Questions</Label>
                     <Select
                       value={questionCount.toString()}
@@ -296,7 +296,7 @@ const Timer = ({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </div> */}
 
                   <Button onClick={handleStartExam} className="w-full">
                     Start Exam
@@ -312,7 +312,6 @@ const Timer = ({
 
   {examStarted && (
     <div className="container px-4 md:px-6 max-w-7xl mx-auto flex gap-6">
-      <ProgressIndicator current={currentQuestionIndex + 1} total={questions.length} />
 <Timer
   duration={examDuration}
   onTimeout={() => {

@@ -27,27 +27,18 @@ const Admin = () => {
   try {
     setLoading(true);
 
-    // Fetch users from `auth.users` and extract metadata
-    const { data: authUsers, error: authError } = await supabase
-      .from("auth.users")
-      .select("id, meta_data"); // Adjust field names based on your schema
-    if (authError) throw authError;
+    const { data: userRoles, error } = await supabase
+  .from("user_roles")
+  .select("user_id, role, users(fullname, email)");
 
-    // Fetch roles from `user_roles`
-    const { data: userRoles, error: rolesError } = await supabase
-      .from("user_roles")
-      .select("user_id, role");
-    if (rolesError) throw rolesError;
+if (error) throw error;
 
-    // Merge user roles with fullname from metadata
-    const mergedUsers = userRoles.map((role) => {
-      const user = authUsers.find((u) => u.id === role.user_id);
-      return {
-        user_id: role.user_id,
-        role: role.role,
-        fullname: user?.meta_data?.fullname || "Unknown", // Extract fullname correctly
-      };
-    });
+const mergedUsers = (userRoles || []).map((role) => ({
+  user_id: role.user_id,
+  role: role.role,
+  fullname: role.users.fullname || "Unknown",
+  email: role.users?.email || "",
+}));
 
     setUsers(mergedUsers || []);
   } catch (error) {
@@ -77,11 +68,15 @@ const Admin = () => {
     };
 
     fetchUsers();
+
     fetchRequests();
   }, []);
+  console.log("Users:", users);
  const filteredUsers = users.filter(user =>
-    user.metadata?.fullname?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      user.fullname?.toLowerCase().includes(
+        searchQuery ? searchQuery.toLowerCase() : ''
+      )
+    );
   const handlePromoteToAdmin = async (userId: string) => {
     try {
       const { data: existingRole, error: checkError } = await supabase
@@ -157,7 +152,7 @@ const Admin = () => {
                   <TableBody>
                     {filteredUsers.map((userRole) => (
                       <TableRow key={userRole.id}>
-                        <TableCell>{userRole.metadata?.fullname || "N/A"}</TableCell>
+                        <TableCell>{userRole.fullname || "N/A"}</TableCell>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded text-xs ${

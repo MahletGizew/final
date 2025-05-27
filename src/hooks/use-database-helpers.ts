@@ -34,6 +34,7 @@ export const useDatabaseHelpers = () => {
       return true;
     } catch (error) {
       console.error('Error deploying database helpers:', error);
+      console.log('Error deploying database helpers:', error);
       toast({
         title: 'Error',
         description: 'Failed to deploy database helper functions',

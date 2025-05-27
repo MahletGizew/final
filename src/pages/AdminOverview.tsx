@@ -9,7 +9,7 @@ export const AdminOverview = () => {
     const fetchCounts = async () => {
       const [{ count: users }, { count: sessions }] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('study_sessions').select('*', { count: 'exact', head: true }),
+        supabase.from('live_sessions').select('*', { count: 'exact', head: true }),
       ]);
 
       setUserCount(users || 0);

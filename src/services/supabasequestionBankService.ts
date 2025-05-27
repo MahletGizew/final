@@ -66,9 +66,8 @@ export const trackQuestionUsage = (examId: string, questionIds: string[]): void 
  * Fetches questions from the questionbank table based on subject/year/count
  */
 export const fetchQuestionsBySubjectAndYear = async (
-    count: number | null | undefined,
   subject: string,
-  year: number 
+  year: number
 ): Promise<{ questions: ExamQuestion[]; source: 'questionbank'; warning?: string }> => {
   if (!isOnline()) {
     throw new Error('An internet connection is required to fetch questions. Please connect and try again.');
@@ -83,54 +82,52 @@ export const fetchQuestionsBySubjectAndYear = async (
       if (attempt > 1) {
         toast.info(`Retrying question fetch (attempt ${attempt}/${maxAttempts})...`);
       }
-      
 
+      // Use fetchId to get the test id for the subject and year
+      const firstTestId = await fetchId(subject, year);
+      console.log('Fetching questions for test_id:', firstTestId);
 
-
-const firstTestId = await fetchId(subject,year)
-
- let query = supabase
+      const { data, error } = await supabase
         .from('questions')
         .select('*')
         .eq('test_id', firstTestId)
         .order('question_number', { ascending: true });
 
-      if (count) {
-        query = query.limit(count * 2); // Fetch more than needed to allow deduplication
-      }
-
-      const { data, error } = await query;
+      console.log('Query response:', { dataLength: data?.length, error });
 
       if (error) {
-        console.error('Supabase error:', data);
-        lastError = new Error(error.message);
-        await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
-        continue;
+        console.error('Supabase query error:', error.message, error.details, error.hint);
+        throw new Error(`Failed to fetch questions: ${error.message}`);
       }
 
       if (!data || data.length === 0) {
-        lastError = new Error('No questions found for the specified subject and year.');
-        await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
-        continue;
+        console.warn('No questions found for test_id:', firstTestId);
+        return {
+          questions: [],
+          source: 'questionbank',
+          warning: `No questions found for test_id ${firstTestId}.`,
+        };
       }
+
+      console.log('Raw data sample:', data.slice(0, 2)); // Log first 2 rows for inspection
 
       const questions: ExamQuestion[] = data.map((q, index) => {
         let options: Option[] = [];
         try {
-          options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+          options = typeof q.options === 'string' ? JSON.parse(q.options) : Array.isArray(q.options) ? q.options : [];
         } catch (parseError) {
-          console.warn(`Invalid options JSON for question ${q.id}:`, parseError);
+          console.warn(`Invalid options JSON for question ${q.id}:`, parseError, 'Raw options:', q.options);
           options = [];
         }
 
         const optionMap: { [key: string]: string } = {};
         options.forEach(opt => {
-          if (opt.option && opt.choice) {
+          if (opt?.option && opt?.choice) {
             optionMap[opt.option.toUpperCase()] = opt.choice;
           }
         });
 
-        return {
+        const question = {
           id: q.id,
           question_number: q.question_number,
           question_text: q.question_text || '',
@@ -141,14 +138,23 @@ const firstTestId = await fetchId(subject,year)
           correct_answer: q.correct_answer || '',
           subject: q.subject,
           year: q.year,
-          explanation: q.explanation
+          explanation: q.explanation,
         };
+
+        console.log(`Mapped question ${q.id}:`, {
+          question_text: question.question_text,
+          options: optionMap,
+          correct_answer: question.correct_answer,
+        }); // Debug mapping
+
+        return question;
       });
 
       // Filter invalid questions
       const valid = questions.filter(q =>
         q.question_text && q.option_a && q.option_b && q.option_c && q.option_d && q.correct_answer
       );
+      console.log('Valid questions count:', valid.length); // Debug filter
 
       // Deduplicate
       const unique = new Map<string, ExamQuestion>();
@@ -158,10 +164,11 @@ const firstTestId = await fetchId(subject,year)
           unique.set(key, q);
         }
       });
+      console.log('Unique questions count:', unique.size); // Debug deduplication
 
-      let final = Array.from(unique.values()).slice(0, count);
+      const final = Array.from(unique.values());
 
-      // Sort by question number (optional enhancement)
+      // Sort by question number
       final.sort((a, b) => {
         const numA = typeof a.question_number === 'string' ? parseInt(a.question_number) : a.question_number || 0;
         const numB = typeof b.question_number === 'string' ? parseInt(b.question_number) : b.question_number || 0;
@@ -174,10 +181,11 @@ const firstTestId = await fetchId(subject,year)
       return {
         questions: final,
         source: 'questionbank',
-        warning: data.length < count ? 'Not enough unique questions available' : undefined
+        warning: final.length === 0 ? 'No valid questions found after filtering' : undefined,
       };
 
     } catch (error) {
+      console.log(error);
       lastError = error instanceof Error ? error : new Error('Unexpected error occurred');
       await new Promise(res => setTimeout(res, Math.min(baseDelay * Math.pow(2, attempt - 1), 15000)));
     }
@@ -219,9 +227,7 @@ export const fetchId = async (
     .eq('year', year);
 
   if (error) throw new Error(error.message);
-console.log( data[0].id)
+  if (!data || !data[0]) throw new Error('No test found for given subject and year');
+  console.log('Fetched test id:', data[0].id);
   return data[0].id;
 };
-
-
-

@@ -25,7 +25,7 @@ export const UpcomingTeacherSessionsTable = ({ teacherId }: { teacherId: string 
   const fetchSessions = async () => {
     const now = new Date().toISOString();
     const { data, error } = await supabase
-      .from('study_sessions')
+      .from('live_sessions')
       .select('*')
       .eq('user_id', teacherId)
     //   .gt('start_time', now)
@@ -39,7 +39,7 @@ export const UpcomingTeacherSessionsTable = ({ teacherId }: { teacherId: string 
   }, [teacherId]);
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('study_sessions').delete().eq('id', id);
+    const { error } = await supabase.from('live_sessions').delete().eq('id', id);
     if (!error) {
       setSessions((prev) => prev.filter((s) => s.id !== id));
     }
@@ -55,7 +55,7 @@ export const UpcomingTeacherSessionsTable = ({ teacherId }: { teacherId: string 
     setLoading(true);
 
     const { error } = await supabase
-      .from('study_sessions')
+      .from('live_sessions')
       .update({
         subject_id: formState.subject_id,
         start_time: formState.start_time,
