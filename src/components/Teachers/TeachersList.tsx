@@ -3,6 +3,7 @@ import { TeacherCard, Teacher } from "./TeacherCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import {useAuth} from '@/context/AuthContext'
+import { toast } from "sonner";
 
 const GRADES = ["All", "9", "10", "11", "12"];
 const SORT_OPTIONS = [
@@ -14,6 +15,8 @@ const SORT_OPTIONS = [
 
 export const TeachersList = () => {
   const {user, userRole}= useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +34,16 @@ export const TeachersList = () => {
 const [currentCallTeacherId, setCurrentCallTeacherId] = useState<string | null>(null);
 
 const handleJoinCall = async (callLink: string, teacher: Teacher) => {
-  if (userRole === "teacher" && user?.id === teacher.created_by) {
-    await supabase
+  if (userRole === "teacher" && user.id === teacher.created_by) {
+    const updated = await supabase
       .from("teachers")
       .update({ is_live: true })
       .eq("id", teacher.id);
+
+      toast("You are now live", {
+        duration: 2000,
+        variant: "success",
+      });
   }
 
   setCurrentCallTeacherId(teacher.id);
@@ -46,7 +54,7 @@ const handleLeaveCall = async () => {
   if (!currentCallTeacherId) return;
 
   const currentTeacher = teachers.find(t => t.id === currentCallTeacherId);
-  if (userRole === "teacher" && user?.id === currentTeacher?.created_by) {
+  if (userRole === "teacher" && user.id === currentTeacher.created_by) {
     await supabase
       .from("teachers")
       .update({ is_live: false })
@@ -98,10 +106,17 @@ const handleLeaveCall = async () => {
 
   // Filter teachers by selectedGrade
 const filteredTeachers = teachers.filter((teacher) => {
-  if (showLiveOnly && !teacher.is_live) return false;
-  if (selectedGrade !== "All" && teacher.grade !== selectedGrade) return false;
-  return true;
-});
+    if (showLiveOnly && !teacher.is_live) return false;
+    if (selectedGrade !== "All" && teacher.grade !== selectedGrade) return false;
+    if (
+      searchQuery &&
+      !teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !teacher.subject.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   // Sort filtered teachers
   const sortedTeachers = [...filteredTeachers].sort((a, b) => {
@@ -171,6 +186,14 @@ const filteredTeachers = teachers.filter((teacher) => {
       {!currentCallLink ? (
         <>
           <div className="flex flex-wrap gap-4 mb-6">
+             {/* Search bar */}
+            <input
+              type="text"
+              placeholder="Search by name or subject..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border rounded p-1 w-64"
+            />
             {/* Grade filter */}
             <label>
               Grade:{" "}

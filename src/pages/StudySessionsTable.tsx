@@ -13,18 +13,37 @@ interface StudySession {
 export const StudySessionsTable = ({ userId }: { userId: string }) => {
   const [sessions, setSessions] = useState<StudySession[]>([]);
 
+ // Fetch sessions
+  const fetchSessions = async () => {
+    const { data, error } = await supabase
+      .from('live_sessions')
+      .select('*')
+      .order('start_time', { ascending: true });
+
+    if (!error && data) setSessions(data);
+  };
+
   useEffect(() => {
-    const fetchSessions = async () => {
-      const { data, error } = await supabase
-        .from('live_sessions')
-        .select('*')
-        .order('start_time', { ascending: true });
-
-      if (!error && data) setSessions(data);
-    };
-
     fetchSessions();
+
+    // Set up realtime subscription to live_sessions
+    const channel = supabase
+      .channel('live_sessions_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'live_sessions' },
+        () => {
+          fetchSessions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
 
   return (
     <div className="overflow-x-auto">

@@ -47,18 +47,12 @@ const TeacherRequestDetail = () => {
     const userId = request.user_id;
 
     // 1. Promote user to teacher
-    await supabase.from("user_roles").upsert([
-  {
-    user_id: userId,
-    role: "teacher" as any
-  }
-]);
-await supabase.from("user_roles").upsert([
-  {
-    user_id: userId,
-    role: "teacher" as any
-  }
-]);
+    const updated = await supabase.from("user_roles").upsert(
+  [{ user_id: userId, role: "teacher" }],
+  { onConflict: "user_id" }
+);
+console.log(updated)
+
 
     // 2. Update request status
     await supabase

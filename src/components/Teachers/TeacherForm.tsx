@@ -64,7 +64,7 @@ export const TeacherForm = ({ onSuccess }: StudySessionFormProps) => {
         (data.end_time.getTime() - data.start_time.getTime()) / (1000 * 60)
       );
 
-      const { error } = await supabase.from("study_sessions").insert({
+      const { error } = await supabase.from("live_sessions").insert({
         user_id: user.id,
         subject_id: data.subject_id,
         start_time: data.start_time.toISOString(),
